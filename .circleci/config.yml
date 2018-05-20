@@ -49,7 +49,7 @@ jobs:
           command: |
             . venv/bin/activate
             coverage run -m unittest tests/api_tests.py && coverage report
-            - coveralls
+            coveralls
 
       - store_artifacts:
           path: test-reports
