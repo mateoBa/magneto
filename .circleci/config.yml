@@ -50,7 +50,7 @@ jobs:
             . venv/bin/activate
             python -m unittest tests.api_tests
           post:
-            - coverage run src/*.py
+            - coverage run api/*.py
             - coverage report
             - coveralls
 
