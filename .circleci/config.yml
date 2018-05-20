@@ -49,12 +49,10 @@ jobs:
           command: |
             . venv/bin/activate
             python -m unittest tests.api_tests
-
-      - run:
-          name: coverage tests
-          command: |
-            . venv/bin/activate
-            coverage run api/*.py
+          post:
+            - coverage run src/*.py
+            - coverage report
+            - coveralls
 
       - store_artifacts:
           path: test-reports
