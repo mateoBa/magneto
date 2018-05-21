@@ -48,7 +48,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            coverage run -m unittest tests/api_tests.py && coverage report
+            coverage run -m unittest tests/api_tests.py && coverage report --omit=. venv/lib/*
             coveralls
 
       - store_artifacts:
