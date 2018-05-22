@@ -30,14 +30,13 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            cd ..
             python3 -m venv venv
             . venv/bin/activate
             pip install -r repo/requirements.txt
 
       - save_cache:
           paths:
-            - ../venv
+            - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       # run tests!
@@ -48,9 +47,9 @@ jobs:
       - run:
           name: run tests
           command: |
-            source ../venv/bin/activate
-            coverage run -m unittest tests/api_tests.py && coverage report --omit=../venv/*
-            coveralls --omit=../venv/*
+            . venv/bin/activate
+            coverage run -m unittest tests/api_tests.py && coverage report
+            coveralls
 
       - store_artifacts:
           path: test-reports
