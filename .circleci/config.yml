@@ -50,7 +50,7 @@ jobs:
           command: |
             source ../venv/bin/activate
             coverage run -m unittest tests/api_tests.py && coverage report --omit=../venv/*
-            coveralls
+            coveralls --omit=../venv/*
 
       - store_artifacts:
           path: test-reports
