@@ -49,7 +49,7 @@ jobs:
           name: run tests
           command: |
             source ../venv/bin/activate
-            coverage run -m unittest tests/api_tests.py && coverage report
+            coverage run -m unittest tests/api_tests.py && coverage report --omit=../venv/*
             coveralls
 
       - store_artifacts:
