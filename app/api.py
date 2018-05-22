@@ -35,18 +35,16 @@ def is_mutant(data):
             if actual == data[i][j + 1] and actual == data[i][j - 1]:
                 _update_values(values, actual, 'h', i)
 
-    if _find_result(values) >= SEQUENCES_TO_FIND:
-        return True
-
-    return False
+    return _find_result(values) >= SEQUENCES_TO_FIND
 
 
 @app.route('/mutant', methods=['POST'])
-def save_sale():
+def is_mutant_api():
     data = request.get_json()
-    if not data:
-        return Response('Empty Data', status=204, mimetype='application/json')
+    if not data or (data and not data.get('dna')):
+        return Response(status=204, mimetype='application/json')
 
+    data = data.get('dna')
     # chequear si el arreglo es un cuadraro, sino devolver error
     rows = len(data)
     for r in data:
