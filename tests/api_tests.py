@@ -1,5 +1,7 @@
 import json
 import unittest
+from unittest import mock
+
 from app import app
 from app.api import is_mutant
 
@@ -20,18 +22,48 @@ class ApiTestCase(unittest.TestCase):
             result = client.post(url, json={'dna': ["AT", "C"]})
             self.assertEqual(result.status, '400 BAD REQUEST')
 
-    def test_api_for_mutant(self):
+    @mock.patch('app.local_redis.LocalRedis.get')
+    @mock.patch('app.local_redis.LocalRedis.set')
+    def test_api_for_mutant(self, get_redis, set_redis):
+        get_redis.return_value = []
+        set_redis.return_value = []
         url = '/mutant'
         with app.test_client() as client:
             result = client.post(url, json={'dna': ["ATGCGA", "CAGTGC", "TTATGT",
                                                     "AGAAGG", "CCCCTA", "TCACTG"]})
             self.assertEqual(result.status, '200 OK')
 
-    def test_api_for_human(self):
+    @mock.patch('app.local_redis.LocalRedis.get')
+    @mock.patch('app.local_redis.LocalRedis.set')
+    def test_api_for_human(self, get_redis, set_redis):
+        get_redis.return_value = []
+        set_redis.return_value = []
         url = '/mutant'
         with app.test_client() as client:
             result = client.post(url, json={'dna': ["ATGCGA", "CAGTGC", "TTATTT",
                                                     "AGACGG", "GCGTCA", "TCACTG"]})
+            self.assertEqual(result.status, '403 FORBIDDEN')
+
+    @mock.patch('app.local_redis.LocalRedis.get')
+    def test_stats_api(self, get_redis):
+        get_redis.return_value = []
+        url = '/stats'
+        with app.test_client() as client:
+            result = client.get(url)
+            data = json.loads(result.data.decode('utf-8'))
+            self.assertEqual(result.status, '200 OK')
+            self.assertEqual(data.get('count_mutant_dna'), 0)
+            self.assertEqual(data.get('count_human_dna'), 0)
+            self.assertEqual(data.get('ratio'), 0)
+
+    @mock.patch('app.local_redis.LocalRedis.get')
+    @mock.patch('app.local_redis.LocalRedis.set')
+    def test_api_with_incorrect_data(self, get_redis, set_redis):
+        get_redis.return_value = []
+        set_redis.return_value = []
+        url = '/mutant'
+        with app.test_client() as client:
+            result = client.post(url, json={'dna': ["XLS", "NZT", "SAR"]})
             self.assertEqual(result.status, '403 FORBIDDEN')
 
 

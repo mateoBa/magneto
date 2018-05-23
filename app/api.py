@@ -1,5 +1,9 @@
+import json
+
 from app import app, SEQUENCES_TO_FIND
 from flask import request, Response
+
+from app.local_redis import LocalRedis
 
 
 def _find_result(values):
@@ -51,6 +55,26 @@ def is_mutant_api():
         if len(r) != rows:
             return Response('Error in data', status=400, mimetype='application/json')
 
-    if is_mutant(data):
+    mutant_list = LocalRedis.get('mutant_list', [])
+    if data in mutant_list:
         return Response('OK', status=200, mimetype='application/json')
+    else:
+        human_list = LocalRedis.get('human_list', [])
+        if data in human_list:
+            return Response('Forbidden', status=403, mimetype='application/json')
+
+    if is_mutant(data):
+        LocalRedis.set('mutant_list', data)
+        return Response('OK', status=200, mimetype='application/json')
+    LocalRedis.set('human_list', data)
     return Response('Forbidden', status=403, mimetype='application/json')
+
+
+@app.route('/stats', methods=['GET'])
+def stats():
+    mutant_count = len(LocalRedis.get('mutant_list', []))
+    human_count = len(LocalRedis.get('human_list', []))
+    ratio = mutant_count/human_count if mutant_count and human_count else mutant_count+human_count
+
+    data = {'count_mutant_dna': mutant_count, 'count_human_dna': human_count, 'ratio': ratio}
+    return Response(json.dumps(data), status=200, mimetype='application/json')
