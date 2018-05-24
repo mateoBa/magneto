@@ -7,6 +7,7 @@ API RESTful para Magneto
 
 ### Endpoints
 http://52.41.230.194/mutant
+
 http://52.41.230.194/stats
 
 ### Uso
